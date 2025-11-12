@@ -59,6 +59,8 @@ function showAnswer(rightGuess) {
             <p>It took you ${guesses} guesses to get it right.</p>
         `;
     } else {
+        formBtn.disabled = true;
+        guess.disabled = true;
         resultArea.innerHTML = '<h2>Here is the answer!</h2>';
     }
 
