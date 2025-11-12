@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+    <title>Guess The Character | Rick and Morty</title>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>Guess the character: Rick and Morty</h1>
+    </header>
+
+    <!-- Main content -->
+    <main>
+        <section id="game-area">
+            <!-- Will show the character image -->
+            <div id="image-container"></div>
+
+            <p>Try guessing the characters name:</p>
+
+            <form>
+                <input list="characters" type="text" id="character-name" autocomplete="off">
+                <!-- Will contain the datalist options for characters -->
+                <datalist id="characters"></datalist>
+
+                <button>Guess</button>
+            </form>
+        </section>
+
+        <!-- Will show the character's info once the user guesses right -->
+        <section id="result-area"></section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>2025 &copy; Made by <a href="https://github.com/SRochaGabriel">Gabriel Sousa</a> with the <a href="https://rickandmortyapi.com/">Rick and Morty API</a></p>
+    </footer>
+</body>
+</html>
