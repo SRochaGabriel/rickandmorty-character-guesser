@@ -5,6 +5,7 @@ const formBtn = document.querySelector('form button');
 const charactersList = document.querySelector('#characters');
 const resultArea = document.querySelector('#result-area');
 const url_api = 'https://rickandmortyapi.com/api/character';
+let characters = [];
 let guesses = 0; // counting how many times the user guesses
 let rightChar; // character to be guessed
 let charEpisodes = []; // episodes in which he appeared
@@ -12,7 +13,7 @@ let charEpisodes = []; // episodes in which he appeared
 // disabling button, input and fetching the characters from the api
 formBtn.disabled = true;
 guess.disabled = true;
-getCharacters(url_api);
+getCharacters();
 
 // event listener for the submit of the form
 document.querySelector('form').addEventListener('submit', event => {
@@ -84,34 +85,44 @@ function showAnswer(rightGuess) {
 }
 
 // fetching all characters for the datalist and to get the random character to be guessed
-function getCharacters(url_api) {
+async function getCharacters() {
     imgContainer.innerHTML = '<h2>Loading...<h2>';
 
-    fetch(url_api)
-    .then(res => res.json())
-    .then(data => {
-        // pushing each character from the data.results array to the characters array
-        data.results.forEach(element => {
-            charactersList.innerHTML += `<option value="${element.name}">`;
+    if (localStorage.getItem('charactersCache')) {
+        characters = JSON.parse(localStorage.getItem('charactersCache'));
+    } else {
+        await fetchFromAPI(url_api);
+    }
+
+    if (charactersList.innerHTML === '') {
+        characters.forEach(character => {
+            charactersList.innerHTML += `<option value="${character.name}"></option>`;
         });
+    }
+    
+    getRandomCharacter();
+}
+
+async function fetchFromAPI(url) {
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        characters.push(...data.results);
         
-        // if there is a next page of characters to fetch, call the function recursively
         if (data.info.next) {
-            getCharacters(data.info.next);
+            await fetchFromAPI(data.info.next);
         } else {
-            // when finished, call the function to select the character to be guessed
-            getRandomCharacter();
+            localStorage.setItem('charactersCache', JSON.stringify(characters));
         }
-    })
-    .catch(() => {
-        alert('Sorry! An error has ocurred.');
-    })
+    } catch (err) {
+        alert('Sorry! An error ocurred.');
+    }
 }
 
 // getting random character to be guessed
 function getRandomCharacter() {
     // generating a random id to select in the characters array between 1 and 826 (there are 826 characters in the api)
-    const randomId = Math.floor((Math.random() * 826) + 1);
+    const randomIndex = Math.floor(Math.random() * 826);
 
     // Reset
     guesses = 0;
@@ -119,24 +130,17 @@ function getRandomCharacter() {
     resultArea.innerHTML = '';
     charEpisodes = [];
 
-    // fetching the one character to be guessed
-    fetch(`${url_api}/${randomId}`)
-    .then(res => res.json())
-    .then(data => {
-        // defining this character as the right character, loading his image and allowing the user to guess
-        rightChar = data;
-        imgContainer.innerHTML = `<img src=${rightChar.image}>`;
+    
+    // defining this character as the right character, loading his image and allowing the user to guess
+    rightChar = characters[randomIndex];
+    imgContainer.innerHTML = `<img src="${rightChar.image}" alt="Character image"/>`;
 
-        // enable buttons
-        guess.disabled = false;
-        formBtn.disabled = false;
-
-        // focus to input
-        guess.focus();
-    })
-    .catch(() => {
-        imgContainer.innerHTML = `<h2>An error has ocurred, sorry!</h2>`;
-    });
+    // enable buttons
+    guess.disabled = false;
+    formBtn.disabled = false;
+    
+    // focus to input
+    guess.focus();
 }
 
 // fetching the episodes in which the character to be guessed appeared
